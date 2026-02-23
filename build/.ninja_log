@@ -1,0 +1,5 @@
+# ninja log v7
+5	99	7935894668697367	CMakeFiles/lisboa.dir/src/main.cpp.obj	6e446d8155d750bf
+13	1405	7935894668780047	CMakeFiles/lisboa.dir/src/proto/fileformat.pb.cc.obj	103137bb89d767da
+22	2263	7935894668864939	CMakeFiles/lisboa.dir/src/proto/osmformat.pb.cc.obj	5fa490f1b4836b3d
+2263	2443	7935894691279973	lisboa.exe	bbadd998b5aac120
