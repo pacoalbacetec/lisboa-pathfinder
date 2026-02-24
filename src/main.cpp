@@ -6,13 +6,10 @@
 #include "proto/fileformat.pb.h"
 #include "proto/osmformat.pb.h"
 #include <zlib.h>
+#include "type.h"
  using namespace std;
 
-struct LatLon {
-    int64_t lat;
-    int64_t lon;
-};
-
+ 
 LatLon calculateLatLon(const OSMPBF::PrimitiveBlock& primitive_block, const OSMPBF::DenseNodes& dense) {
 int64_t granularity = primitive_block.granularity();
 int64_t lat_offset = primitive_block.lat_offset();
