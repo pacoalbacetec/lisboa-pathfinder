@@ -1,7 +1,7 @@
 # ninja log v7
-7	1236	7936324856638088	CMakeFiles/lisboa.dir/src/main.cpp.obj	6e446d8155d750bf
+7	1294	7936378607560299	CMakeFiles/lisboa.dir/src/main.cpp.obj	6e446d8155d750bf
 13	1405	7935894668780047	CMakeFiles/lisboa.dir/src/proto/fileformat.pb.cc.obj	103137bb89d767da
 22	2263	7935894668864939	CMakeFiles/lisboa.dir/src/proto/osmformat.pb.cc.obj	5fa490f1b4836b3d
-1236	1428	7936324868925644	lisboa.exe	bbadd998b5aac120
-6	1246	7936339468310947	CMakeFiles/lisboa.dir/src/main.cpp.obj	6e446d8155d750bf
-1246	1443	7936339480695845	lisboa.exe	bbadd998b5aac120
+1294	1491	7936378620437836	lisboa.exe	bbadd998b5aac120
+7	1377	7936423700511976	CMakeFiles/lisboa.dir/src/main.cpp.obj	6e446d8155d750bf
+1377	1577	7936423714218619	lisboa.exe	bbadd998b5aac120
