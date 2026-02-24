@@ -7,7 +7,12 @@
 #include "proto/osmformat.pb.h"
 #include <zlib.h>
 #include "type.h"
+#include "graph.h"
+
  using namespace std;
+
+
+
 
  
 LatLon calculateLatLon(const OSMPBF::PrimitiveBlock& primitive_block, const OSMPBF::DenseNodes& dense) {
@@ -47,9 +52,32 @@ void printBlobInfo(const OSMPBF::BlobHeader& blob_header, const OSMPBF::Blob& bl
 
 }
 
+void extractNodes(const OSMPBF::PrimitiveBlock& primitive_block, const OSMPBF::DenseNodes& dense, Graph& graph){
+    
+    int64_t accumulated_id = 0;
+    int64_t accumulated_lat = 0;
+    int64_t accumulated_lon = 0;
+    int64_t granularity = primitive_block.granularity();
+    int64_t lat_offset = primitive_block.lat_offset();
+    int64_t lon_offset = primitive_block.lon_offset();
+
+    for(int i = 0; i < dense.id_size();i++){
+        Node n;
+        accumulated_lat += dense.lat(i);
+        accumulated_lon += dense.lon(i);
+        accumulated_id += dense.id(i);
+
+        n.coords.lat = lat_offset + granularity * accumulated_lat;
+        n.coords.lon = lon_offset + granularity * accumulated_lon;
+
+        int64_t id = accumulated_id;
+        graph.nodes[id] = n;
+    }
+}
+
 //flow: read 4 bytes ->header_size -> read header -> parse header -> print blob type and sizes
 
-void readBlock(istream& file) {
+void readBlock(istream& file, Graph& graph) {
 
     // Read the first 4 bytes to get the header size
     char buffer[4];
@@ -108,7 +136,13 @@ void readBlock(istream& file) {
         return;
     }
 
-    printBlobInfo(blob_header, blob, primitive_block);
+    if(blob_header.type() == "OSMData") {
+        const auto& group = primitive_block.primitivegroup(0);
+        if(group.has_dense()) {
+            extractNodes(primitive_block, group.dense(), graph);
+    }
+}
+   //printBlobInfo(blob_header, blob, primitive_block);
 
 }
 
@@ -121,9 +155,13 @@ int main() {
         return 1;
     }
 
-    while(file.good()) {
-        readBlock(file);
-    }
+    Graph graph;
+    int block_count = 0;
+    while(file.good() && block_count < 50) {
+        readBlock(file, graph);
+        block_count++;
+}
+    cout << "Total nodes: " << graph.nodes.size() << endl;
 
     file.close();   
 
