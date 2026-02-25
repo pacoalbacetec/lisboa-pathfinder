@@ -70,6 +70,27 @@ void extractNodes(const OSMPBF::PrimitiveBlock& primitive_block, const OSMPBF::D
     } 
 }
 
+void extractWays(const OSMPBF::PrimitiveGroup& group, Graph& graph) {
+    
+    for(int i = 0; i < group.ways_size(); i++) {
+        const auto& way = group.ways(i);
+        
+        // Reset accumulates for each Way
+        int64_t accumulated_ref = 0;
+        int64_t prev_node_id = -1;
+
+        for(int j = 0; j < way.refs_size(); j++) {
+            accumulated_ref += way.refs(j);  // accumulate delta
+            
+            if(prev_node_id != -1) {
+                graph.adjacency_list[accumulated_ref].push_back(prev_node_id);
+                graph.adjacency_list[prev_node_id].push_back(accumulated_ref);
+            }
+            prev_node_id = accumulated_ref;
+        }
+    }
+}
+
 // Reads a single block from the OSM PBF file, parses it, and extracts nodes into the graph
 bool readBlock(istream& file, Graph& graph) {
 
