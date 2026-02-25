@@ -8,12 +8,7 @@
 #include <zlib.h>
 #include "type.h"
 #include "graph.h"
-
  using namespace std;
-
-
-
-
  
 LatLon calculateLatLon(const OSMPBF::PrimitiveBlock& primitive_block, const OSMPBF::DenseNodes& dense) {
 int64_t granularity = primitive_block.granularity();
@@ -69,20 +64,19 @@ void extractNodes(const OSMPBF::PrimitiveBlock& primitive_block, const OSMPBF::D
 
         n.coords.lat = lat_offset + granularity * accumulated_lat;
         n.coords.lon = lon_offset + granularity * accumulated_lon;
-
+     
         int64_t id = accumulated_id;
         graph.nodes[id] = n;
-    }
+    } 
 }
 
-//flow: read 4 bytes ->header_size -> read header -> parse header -> print blob type and sizes
-
-void readBlock(istream& file, Graph& graph) {
+// Reads a single block from the OSM PBF file, parses it, and extracts nodes into the graph
+bool readBlock(istream& file, Graph& graph) {
 
     // Read the first 4 bytes to get the header size
     char buffer[4];
-    if(!file.read(buffer, 4)) {
-        return;
+    if(!file.read(buffer, 4))  {
+        return false; 
     }
     uint32_t header_size = ((uint8_t)buffer[0] << 24)  | 
                            ((uint8_t)buffer[1] << 16)  | 
@@ -92,25 +86,25 @@ void readBlock(istream& file, Graph& graph) {
     // Read the header data
     vector<char> blob_header_buffer(header_size);
     if(!file.read(blob_header_buffer.data(), header_size)) {
-        return;
+        return false;
     }
 
     // Parse the header using protobuf and print the blob type and sizes
     OSMPBF::BlobHeader blob_header;
     if(!blob_header.ParseFromArray(blob_header_buffer.data(), header_size)) {
         cerr << "Failed to parse BlobHeader!" << endl;
-        return;
+        return false; 
     }
 
     // Read the blob data based on the size specified in the header
     vector<char> blob_data_buffer(blob_header.datasize());
     OSMPBF::Blob blob;
     if(!file.read(blob_data_buffer.data(), blob_header.datasize())) {
-        return;
+        return false;
     }
     if(!blob.ParseFromArray(blob_data_buffer.data(), blob_header.datasize())) {
         cerr << "Failed to parse Blob!" << endl;
-        return;
+        return false;
     }
 
     //bytef is a type defined in zlib, representing an unsigned char
@@ -127,28 +121,36 @@ void readBlock(istream& file, Graph& graph) {
     // Z_OK is a constant defined in zlib that indicates successful decompression
     if(result != Z_OK) {
         cerr << "Failed to decompress blob data!" << endl;
-        return;
+        return false;
     }
 
-    OSMPBF::PrimitiveBlock primitive_block;
+    if(blob_header.type() != "OSMData") {
+        return true; // Skip non-OSMData blobs but continue processing the file
+    }
+   OSMPBF::PrimitiveBlock primitive_block;
     if(!primitive_block.ParseFromArray(buffer_decompressed.data(), decompressed_size)) {
         cerr << "Failed to parse PrimitiveBlock!" << endl;
-        return;
-    }
+        return false;
+}
 
-    if(blob_header.type() == "OSMData") {
-        const auto& group = primitive_block.primitivegroup(0);
-        if(group.has_dense()) {
-            extractNodes(primitive_block, group.dense(), graph);
+if(primitive_block.primitivegroup_size() > 0) {
+    const auto& group = primitive_block.primitivegroup(0);
+    if(group.has_dense()) {
+        extractNodes(primitive_block, group.dense(), graph);
     }
 }
+
    //printBlobInfo(blob_header, blob, primitive_block);
 
+    return true;
 }
+
+
+
 
 int main() {
 
-    ifstream file("portugal-260222.osm.pbf", ios::binary);
+    ifstream file("lisbon.osm.pbf", ios::binary);
 
     if(!file.is_open()) {
         cerr << "Error opening file!" << endl;
@@ -157,9 +159,13 @@ int main() {
 
     Graph graph;
     int block_count = 0;
-    while(file.good() && block_count < 50) {
-        readBlock(file, graph);
-        block_count++;
+    
+    while(file.good()) {
+    if(!readBlock(file, graph)) break;
+    block_count++;
+    if(block_count % 100 == 0) {
+        cout << "Processed " << block_count << " blocks, nodes: " << graph.nodes.size() << endl;
+    }
 }
     cout << "Total nodes: " << graph.nodes.size() << endl;
 
