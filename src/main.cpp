@@ -8,6 +8,8 @@
 #include <zlib.h>
 #include "type.h"
 #include "graph.h"
+#include <queue>
+#include "astar.h"
  using namespace std;
  
 LatLon calculateLatLon(const OSMPBF::PrimitiveBlock& primitive_block, const OSMPBF::DenseNodes& dense) {
@@ -22,6 +24,24 @@ return {lat, lon};
 
     }
 
+int64_t findNearestNode(double lat, double lon, Graph& graph) {
+    int64_t best_id = -1;
+    double best_dist = numeric_limits<double>::infinity();
+    LatLon target = {(int64_t)(lat * 1e9), (int64_t)(lon * 1e9)};
+    
+    for(auto& [id, node] : graph.nodes) {
+        // skip nodes without neighbours or invalid coords
+        if(graph.adjacency_list.count(id) == 0) continue;
+        if(node.coords.lat == 0 && node.coords.lon == 0) continue;
+        
+        double dist = haverstine(node.coords, target);
+        if(dist < best_dist) {
+            best_dist = dist;
+            best_id = id;
+        }
+    }
+    return best_id;
+}
 
 void printBlobInfo(const OSMPBF::BlobHeader& blob_header, const OSMPBF::Blob& blob, const OSMPBF::PrimitiveBlock& primitive_block) {
     cout << "Blob type: " << blob_header.type() << endl;
@@ -64,23 +84,36 @@ void extractNodes(const OSMPBF::PrimitiveBlock& primitive_block, const OSMPBF::D
 
         n.coords.lat = lat_offset + granularity * accumulated_lat;
         n.coords.lon = lon_offset + granularity * accumulated_lon;
-     
+
         int64_t id = accumulated_id;
         graph.nodes[id] = n;
     } 
 }
 
-void extractWays(const OSMPBF::PrimitiveGroup& group, Graph& graph) {
+void extractWays(const OSMPBF::PrimitiveGroup& group, Graph& graph, 
+                            const OSMPBF::PrimitiveBlock& primitive_block) {
+    
+    const auto& string_table = primitive_block.stringtable();
     
     for(int i = 0; i < group.ways_size(); i++) {
         const auto& way = group.ways(i);
         
-        // Reset accumulates for each Way
+        // Check if this way has a "highway" tag
+        bool is_highway = false;
+        for(int k = 0; k < way.keys_size(); k++) {
+            const string& key = string_table.s(way.keys(k));
+            if(key == "highway") {
+                is_highway = true;
+                break;
+            }
+        }
+        if(!is_highway) continue;  // skip non-road ways
+        
         int64_t accumulated_ref = 0;
         int64_t prev_node_id = -1;
 
         for(int j = 0; j < way.refs_size(); j++) {
-            accumulated_ref += way.refs(j);  // accumulate delta
+            accumulated_ref += way.refs(j);
             
             if(prev_node_id != -1) {
                 graph.adjacency_list[accumulated_ref].push_back(prev_node_id);
@@ -100,9 +133,9 @@ bool readBlock(istream& file, Graph& graph) {
         return false; 
     }
     uint32_t header_size = ((uint8_t)buffer[0] << 24)  | 
-                           ((uint8_t)buffer[1] << 16)  | 
-                           ((uint8_t)buffer[2] << 8)    | 
-                           ((uint8_t)buffer[3] );
+                                        ((uint8_t)buffer[1] << 16)  | 
+                                        ((uint8_t)buffer[2] << 8)    | 
+                                        ((uint8_t)buffer[3] );
 
     // Read the header data
     vector<char> blob_header_buffer(header_size);
@@ -148,19 +181,19 @@ bool readBlock(istream& file, Graph& graph) {
     if(blob_header.type() != "OSMData") {
         return true; // Skip non-OSMData blobs but continue processing the file
     }
-   OSMPBF::PrimitiveBlock primitive_block;
+    OSMPBF::PrimitiveBlock primitive_block;
     if(!primitive_block.ParseFromArray(buffer_decompressed.data(), decompressed_size)) {
         cerr << "Failed to parse PrimitiveBlock!" << endl;
         return false;
 }
 
-if(primitive_block.primitivegroup_size() > 0) {
-    const auto& group = primitive_block.primitivegroup(0);
+for(int g = 0; g < primitive_block.primitivegroup_size(); g++) {
+    const auto& group = primitive_block.primitivegroup(g);
     if(group.has_dense()) {
         extractNodes(primitive_block, group.dense(), graph);
     }
     if(group.ways_size() > 0){
-        extractWays(group, graph);
+        extractWays(group, graph, primitive_block);
     }
 }
 
@@ -173,11 +206,10 @@ if(primitive_block.primitivegroup_size() > 0) {
 
 
 
-
 int main() {
 
+    // Load graph from PBF file
     ifstream file("lisbon.osm.pbf", ios::binary);
-
     if(!file.is_open()) {
         cerr << "Error opening file!" << endl;
         return 1;
@@ -185,19 +217,29 @@ int main() {
 
     Graph graph;
     int block_count = 0;
-    
     while(file.good()) {
-    if(!readBlock(file, graph)) break;
-    block_count++;
-    if(block_count % 100 == 0) {
-        cout << "Processed " << block_count << " blocks, nodes: " << graph.nodes.size() << endl;
+        if(!readBlock(file, graph)) break;
+        block_count++;
+        if(block_count % 100 == 0) {
+            cout << "Processed " << block_count << " blocks, nodes: " << graph.nodes.size() << endl;
+        }
     }
-}
+    file.close();
+
     cout << "Total nodes: " << graph.nodes.size() << endl;
     cout << "Total nodes in adjacency list: " << graph.adjacency_list.size() << endl;
 
 
-    file.close();   
+
+    // Find nearest nodes to two points in Lisbon
+    int64_t start = findNearestNode(38.7077, -9.1365, graph); // Praça do Comércio
+    int64_t goal  = findNearestNode(38.7169, -9.1399, graph); // Rossio
+
+    cout << "Start: " << start << endl;
+    cout << "Goal: " << goal << endl;
+    // Run A* pathfinding
+    vector<int64_t> path = astar(start, goal, graph);
+    cout << "Path length: " << path.size() << " nodes" << endl;
 
     return 0;
 }

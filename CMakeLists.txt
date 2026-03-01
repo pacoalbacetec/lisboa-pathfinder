@@ -10,6 +10,7 @@ add_executable(lisboa
     src/main.cpp
     src/proto/fileformat.pb.cc
     src/proto/osmformat.pb.cc
+    src/astar.cpp
 )
 
 target_include_directories(lisboa PRIVATE src)
