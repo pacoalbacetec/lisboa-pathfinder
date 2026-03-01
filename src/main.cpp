@@ -159,7 +159,12 @@ if(primitive_block.primitivegroup_size() > 0) {
     if(group.has_dense()) {
         extractNodes(primitive_block, group.dense(), graph);
     }
+    if(group.ways_size() > 0){
+        extractWays(group, graph);
+    }
 }
+
+
 
    //printBlobInfo(blob_header, blob, primitive_block);
 
@@ -189,6 +194,8 @@ int main() {
     }
 }
     cout << "Total nodes: " << graph.nodes.size() << endl;
+    cout << "Total nodes in adjacency list: " << graph.adjacency_list.size() << endl;
+
 
     file.close();   
 
