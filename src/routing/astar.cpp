@@ -1,9 +1,8 @@
 #include "astar.h"
 #include <cmath>
 #include <algorithm>
-#include <iostream>
 #include "transport.h"
-using namespace std;
+
 
 // haverstine formula to calculate the distance between two points on the earth's surface
 double haverstine(const LatLon& a, const LatLon& b){
@@ -30,6 +29,7 @@ double haverstine(const LatLon& a, const LatLon& b){
         h_score = heuristic cost from current node to goal
         f_score = g_score + h_score
 **/
+
 vector<int64_t> astar(int64_t start, int64_t goal, Graph& graph, int8_t transportMethod){
 
     //set of nodes to be evaluated, ordered by f_score

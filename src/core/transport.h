@@ -14,4 +14,4 @@ const vector<string> WALK_TYPES = {
     "steps", "residential", "living_street", "track"
 };
 
-#endif // TRANSPORT_H
+#endif 

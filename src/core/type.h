@@ -19,4 +19,4 @@ struct Coords {
     double lon;
 };
 
-#endif // TYPE_H
+#endif 

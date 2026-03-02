@@ -7,12 +7,21 @@ find_package(protobuf CONFIG REQUIRED)
 find_package(ZLIB REQUIRED)
 
 add_executable(lisboa 
-    src/main.cpp
     src/proto/fileformat.pb.cc
     src/proto/osmformat.pb.cc
-    src/astar.cpp
+    src/routing/astar.cpp
+    src/io/parser.cpp
+    src/ui/utils.cpp
+    src/main.cpp
 )
 
-target_include_directories(lisboa PRIVATE src)
+target_include_directories(lisboa PRIVATE 
+    src
+    src/core
+    src/routing
+    src/io
+    src/ui
+)
+
 
 target_link_libraries(lisboa PRIVATE protobuf::libprotobuf ZLIB::ZLIB)
