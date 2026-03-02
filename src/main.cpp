@@ -1,5 +1,5 @@
 #include <iostream>
- #include <fstream>
+#include <fstream>
 #include <string>
 #include <cstdint>
 #include <vector>
@@ -11,31 +11,62 @@
 #include "graph.h"
 #include <queue>
 #include "astar.h"
+#include "transport.h"
 using namespace std;
 
+Coords askUserForCoordinates(const int8_t flag) {
+    double startCoordsLat, startCoordsLon, goalCoordsLat, goalCoordsLon;
+    switch(flag){
+        case 1:{
+            cout << "Please introduce the coordinates of the start point: "<< "lat" << endl;
+            cin >> startCoordsLat;
+            cout << "Please introduce the coordinates of the start point: "<< "lon" << endl;
+            cin >> startCoordsLon;
+            return {startCoordsLat, startCoordsLon};
+        } case 2:
+            cout << "Please introduce the coordinates of the goal point: "<< "lat" << endl;
+            cin >> goalCoordsLat;
+            cout << "Please introduce the coordinates of the goal point: "<< "lon" << endl;
+            cin >> goalCoordsLon;
+            return {goalCoordsLat, goalCoordsLon};
+        }
+    return {0,0};
+}
+
 LatLon calculateLatLon(const OSMPBF::PrimitiveBlock& primitive_block, const OSMPBF::DenseNodes& dense) {
-int64_t granularity = primitive_block.granularity();
-int64_t lat_offset = primitive_block.lat_offset();
-int64_t lon_offset = primitive_block.lon_offset();
 
-int64_t lat = lat_offset + granularity * dense.lat(0);
-int64_t lon = lon_offset + granularity * dense.lon(0);
+    int64_t granularity = primitive_block.granularity();
+    int64_t lat_offset = primitive_block.lat_offset();
+    int64_t lon_offset = primitive_block.lon_offset();
+    int64_t lat = lat_offset + granularity * dense.lat(0);
+    int64_t lon = lon_offset + granularity * dense.lon(0);
+    return {lat, lon};
 
-return {lat, lon};
+}
 
-    }
-
-int64_t findNearestNode(double lat, double lon, Graph& graph) {
+int64_t findNearestNode(Coords target, Graph& graph, int8_t transportMethod) {
     int64_t best_id = -1;
     double best_dist = numeric_limits<double>::infinity();
-    LatLon target = {(int64_t)(lat * 1e9), (int64_t)(lon * 1e9)};
+    LatLon targetNano = {(int64_t)(target.lat * 1e9), (int64_t)(target.lon * 1e9)};
     
     for(auto& [id, node] : graph.nodes) {
+
         // skip nodes without neighbours or invalid coords
         if(graph.adjacency_list.count(id) == 0) continue;
         if(node.coords.lat == 0 && node.coords.lon == 0) continue;
+
+        // check if node has a valid neighbour for the transport method
+        bool hasValidNeighbour = false;
+        const vector<string>& allowedTypes = (transportMethod == 1) ? CAR_TYPES : WALK_TYPES;
+        for(auto& [nId, type] : graph.adjacency_list[id]) {
+            if(find(allowedTypes.begin(), allowedTypes.end(), type) != allowedTypes.end()) {
+            hasValidNeighbour = true;
+            break;
+            }
+        }
+        if(!hasValidNeighbour) continue;
         
-        double dist = haverstine(node.coords, target);
+        double dist = haverstine(node.coords, targetNano);
         if(dist < best_dist) {
             best_dist = dist;
             best_id = id;
@@ -241,14 +272,19 @@ int main() {
     cout << "Total nodes in adjacency list: " << graph.adjacency_list.size() << endl;
 
     // Find nearest nodes to two points in Lisbon
-    int64_t start = findNearestNode(38.7077, -9.1365, graph); // Praça do Comércio
-    int64_t goal  = findNearestNode(38.7169, -9.1399, graph); // Rossio
+    Coords startCoords = askUserForCoordinates(1);
+    cout << "Start: " << startCoords.lat << ", " << startCoords.lon << endl;
+    Coords goalCoords = askUserForCoordinates(2);
+    cout << "Goal: " << goalCoords.lat << ", " << goalCoords.lon << endl;
 
-    cout << "Start: " << start << endl;
-    cout << "Goal: " << goal << endl;
+    int64_t start = findNearestNode(startCoords, graph, transportMethod); // Praça do Comércio
+    int64_t goal = findNearestNode(goalCoords, graph, transportMethod); // Rossio
+
+    /*  Debug: print neighbours of start node to check if are valid for the transport method
     for(auto& [neighbourId, highwayType] : graph.adjacency_list[start]) {
-    cout << "neighbour: " << neighbourId << " type: " << highwayType << endl;
-}
+        cout << "neighbour: " << neighbourId << " type: " << highwayType << endl;
+    }
+    */
     // Run A* pathfinding
     vector<int64_t> path = astar(start, goal, graph,transportMethod);
     cout << "Path length: " << path.size() << " nodes" << endl;

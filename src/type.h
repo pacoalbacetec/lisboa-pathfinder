@@ -14,4 +14,9 @@ struct Node{
     string name;
 };
 
+struct Coords {
+    double lat;
+    double lon;
+};
+
 #endif // TYPE_H

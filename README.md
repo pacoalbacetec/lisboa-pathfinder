@@ -1,22 +1,14 @@
 # Lisboa Pathfinder
 
-A personal route planner for Lisbon built in C++.
+Exploring Lisbon through OpenStreetMap data, graph algorithms, and real city APIs.
 
 ## Motivation
 
-Moving to Lisbon for a year as an Erasmus student. This started as an excuse to work with real geographic data at a low level — parsing binary formats, building graph structures, and implementing pathfinding from scratch. The end goal is something actually useful for getting around the city.
-
-## Goals
-
-- Parse real OpenStreetMap data (PBF format) at a low level
-- Build an efficient graph of Lisbon's street network
-- Implement smart pathfinding (A*) with custom heuristics
-- Factor in personal preferences when routing
-- Fast terminal-based interface
+Moving to Lisbon for a year as an Erasmus student. This started as an excuse to work with real geographic data at a low level — parsing binary formats, building graph structures, and implementing pathfinding from scratch. The direction of the project is still evolving, but the end goal is something closer to a dynamic router that factors in real-world conditions like live traffic, public transport, and city data.
 
 ## Status
 
-🚧 Active development.
+🚧 Active development. The project is still finding its shape — priority right now is learning and building solid foundations.
 
 **Done:**
 - PBF binary parsing (BlobHeader, Blob, PrimitiveBlock)
@@ -25,13 +17,21 @@ Moving to Lisbon for a year as an Erasmus student. This started as an excuse to 
 - Way parsing with highway tag filtering
 - Graph construction (nodes + adjacency list)
 - A* pathfinding with Haversine heuristic
+- Transport method selection (car / walk) with highway type filtering
+- User input for start and goal coordinates
 
-**Next:**
+**Planned:**
 - Graph cache (serialize/deserialize to avoid reloading PBF every run)
-- Filter by pedestrian-friendly highway types
+- Nominatim API integration — search by place name instead of coordinates
+- Trie for place name autocomplete
+- k-d tree for efficient nearest node lookup
+- Multimodal routing (walking + driving combined)
+- Lisboa open data API integration:
+  - Live traffic data
+  - Bus and parking info
+  - Traffic sign data
+  - Traffic light estimation (reverse engineering / heuristics)
 - INTERNALS.md — visual deep-dive into the PBF format, varint encoding, and delta compression
-- User input for start/end points
-- Personal preference weighting
 
 ## Dependencies
 
