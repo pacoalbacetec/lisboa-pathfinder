@@ -7,9 +7,6 @@
 
 double haverstine(const LatLon& a, const LatLon& b);
 
-
-vector<int64_t> astar(int64_t start, int64_t goal, Graph& graph);
-
-
+vector<int64_t> astar(int64_t start, int64_t goal, Graph& grap, int8_t transportMethod);
 
 #endif // ASTAR_H

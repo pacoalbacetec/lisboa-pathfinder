@@ -2,6 +2,7 @@
 #include <cmath>
 #include <algorithm>
 #include <iostream>
+#include "transport.h"
 using namespace std;
 
 // haverstine formula to calculate the distance between two points on the earth's surface
@@ -29,7 +30,7 @@ double haverstine(const LatLon& a, const LatLon& b){
         h_score = heuristic cost from current node to goal
         f_score = g_score + h_score
 **/
-vector<int64_t> astar(int64_t start, int64_t goal, Graph& graph){
+vector<int64_t> astar(int64_t start, int64_t goal, Graph& graph, int8_t transportMethod){
 
     //set of nodes to be evaluated, ordered by f_score
     priority_queue<pair<double,int64_t>, 
@@ -49,44 +50,42 @@ vector<int64_t> astar(int64_t start, int64_t goal, Graph& graph){
     double h = haverstine(graph.nodes[start].coords, graph.nodes[goal].coords);
     open_set.push(make_pair(h, start));
 
-    
-    int iterations = 0;
+    const vector<string>& allowedTypes = (transportMethod == 1) ? CAR_TYPES : WALK_TYPES;
     while(!open_set.empty()){
-        iterations++;
         auto [f,id] = open_set.top();
         open_set.pop();
+
         //if this node has already been evaluated, skip it
         if(closed_set.count(id)) continue; 
+
         if(id == goal){
-        vector<int64_t> path;
-        int64_t current = goal;
-        while(current != start){
-            path.push_back(current);
-            current = came_from[current];
-        }
-        path.push_back(start);
-        reverse(path.begin(),path.end());
-        return path;
-        }
-        //mark current node as evaluated
-        closed_set.insert({id});
-        //evaluate neighbours
-        for(auto neighbour : graph.adjacency_list[id]){
-            if(closed_set.count(neighbour)){
-                continue;
+            vector<int64_t> path;
+            int64_t current = goal;
+            while(current != start){
+                path.push_back(current);
+                current = came_from[current];
             }
-            
-            if(graph.nodes[neighbour].coords.lat == 0 && graph.nodes[neighbour].coords.lon == 0) continue;
-            
+            path.push_back(start);
+            reverse(path.begin(),path.end());
+            return path;
+        }
+
+        //mark current node as evaluated
+            closed_set.insert({id});
+        //evaluate neighbours
+            for(auto& [neighbourId, highwayType] : graph.adjacency_list[id]){
+                
+                if(closed_set.count(neighbourId)) continue;
+                if(graph.nodes[neighbourId].coords.lat == 0 && graph.nodes[neighbourId].coords.lon == 0) continue;
+                if(find(allowedTypes.begin(), allowedTypes.end(), highwayType) == allowedTypes.end()) continue;
+
             //new g_score for neighbour is g_score of current node + distance to neighbour
-            double g_new = g_score[id] + haverstine(graph.nodes[id].coords, graph.nodes[neighbour].coords);
-            //cout << "neighbour: " << neighbour << " g_new=" << g_new << " f=" << g_new + haverstine(graph.nodes[neighbour].coords, graph.nodes[goal].coords) << endl;
-            //if this path to neighbour is better than any previous one, record it
-            if(g_score.find(neighbour) == g_score.end() || g_new < g_score[neighbour]) {
-                    came_from[neighbour] = id;
-                    g_score[neighbour] = g_new;
-                    double f = g_new + haverstine(graph.nodes[neighbour].coords, graph.nodes[goal].coords);
-                    open_set.push(make_pair(f, neighbour));
+                double g_new = g_score[id] + haverstine(graph.nodes[id].coords, graph.nodes[neighbourId].coords);
+                if(g_score.find(neighbourId) == g_score.end() || g_new < g_score[neighbourId]) {
+                    came_from[neighbourId] = id;
+                    g_score[neighbourId] = g_new;
+                    double f = g_new + haverstine(graph.nodes[neighbourId].coords, graph.nodes[goal].coords);
+                    open_set.push(make_pair(f, neighbourId));
                 }
             }
         }
