@@ -33,17 +33,17 @@ int main() {
             return 1;
         }
     Graph graph;
-    int block_count = 0;
+    int blockCount = 0;
     while(file.good()) {
         if(!readBlock(file, graph, transportMethod)) break;
-            block_count++;
-            if(block_count % 100 == 0) {
-                cout << "Processed " << block_count << " blocks, nodes: " << graph.nodes.size() << endl;
+            blockCount++;
+            if(blockCount % 100 == 0) {
+                cout << "Processed " << blockCount << " blocks, nodes: " << graph.nodes.size() << endl;
         }
     }
     file.close();
     cout << "Total nodes: " << graph.nodes.size() << endl;
-    cout << "Total nodes in adjacency list: " << graph.adjacency_list.size() << endl;
+    cout << "Total nodes in adjacency list: " << graph.adjacencyList.size() << endl;
 
     // Find nearest nodes to two points in Lisbon
     Coords startCoords = askUserForCoordinates(1);
@@ -55,7 +55,7 @@ int main() {
     int64_t goal = findNearestNode(goalCoords, graph, transportMethod); // Rossio
 
     /*  Debug: print neighbours of start node to check if are valid for the transport method
-    for(auto& [neighbourId, highwayType] : graph.adjacency_list[start]) {
+    for(auto& [neighbourId, highwayType] : graph.adjacencyList[start]) {
         cout << "neighbour: " << neighbourId << " type: " << highwayType << endl;
     }
     */

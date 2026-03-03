@@ -15,23 +15,23 @@ LatLon calculateLatLon(const OSMPBF::PrimitiveBlock& primitive_block, const OSMP
 
 void extractNodes(const OSMPBF::PrimitiveBlock& primitive_block, const OSMPBF::DenseNodes& dense, Graph& graph){
     
-    int64_t accumulated_id = 0;
-    int64_t accumulated_lat = 0;
-    int64_t accumulated_lon = 0;
+    int64_t accumulatedId = 0;
+    int64_t accumulatedLat = 0;
+    int64_t accumulatedLon = 0;
     int64_t granularity = primitive_block.granularity();
-    int64_t lat_offset = primitive_block.lat_offset();
-    int64_t lon_offset = primitive_block.lon_offset();
+    int64_t latOffset = primitive_block.lat_offset();
+    int64_t lonOffset = primitive_block.lon_offset();
 
     for(int i = 0; i < dense.id_size();i++){
         Node n;
-        accumulated_lat += dense.lat(i);
-        accumulated_lon += dense.lon(i);
-        accumulated_id += dense.id(i);
+        accumulatedLat += dense.lat(i);
+        accumulatedLon += dense.lon(i);
+        accumulatedId += dense.id(i);
 
-        n.coords.lat = lat_offset + granularity * accumulated_lat;
-        n.coords.lon = lon_offset + granularity * accumulated_lon;
+        n.coords.lat = latOffset + granularity * accumulatedLat;
+        n.coords.lon = lonOffset + granularity * accumulatedLon;
 
-        int64_t id = accumulated_id;
+        int64_t id = accumulatedId;
         graph.nodes[id] = n;
     } 
 }
@@ -39,34 +39,34 @@ void extractNodes(const OSMPBF::PrimitiveBlock& primitive_block, const OSMPBF::D
 void extractWays(const OSMPBF::PrimitiveGroup& group, Graph& graph, 
                             const OSMPBF::PrimitiveBlock& primitive_block, int8_t transportMethod) {
     
-    const auto& string_table = primitive_block.stringtable();
+    const auto& stringTable = primitive_block.stringtable();
     for(int i = 0; i < group.ways_size(); i++) {
         const auto& way = group.ways(i);
         string highwayType;
         // Check if this way has a "highway" tag
-        bool is_highway = false;
+        bool isHighway = false;
         for(int k = 0; k < way.keys_size(); k++) {
-            const string& key = string_table.s(way.keys(k));
+            const string& key = stringTable.s(way.keys(k));
             if(key == "highway") {
-                is_highway = true;
+                isHighway = true;
                 // store type of highway: primary, footway, residential...
-                highwayType = string_table.s(way.vals(k));
+                highwayType = stringTable.s(way.vals(k));
                 break;
             }
         }        
-        if(!is_highway) continue;  // skip non-road ways
+        if(!isHighway) continue;  // skip non-road ways
 
-        int64_t accumulated_ref = 0;
-        int64_t prev_node_id = -1;
+        int64_t accumulatedRef = 0;
+        int64_t prevNodeId = -1;
 
         for(int j = 0; j < way.refs_size(); j++) {
-            accumulated_ref += way.refs(j);
+            accumulatedRef += way.refs(j);
             
-            if(prev_node_id != -1) {
-                graph.adjacency_list[accumulated_ref].push_back({prev_node_id,highwayType});
-                graph.adjacency_list[prev_node_id].push_back({accumulated_ref,highwayType});
+            if(prevNodeId != -1) {
+                graph.adjacencyList[accumulatedRef].push_back({prevNodeId,highwayType});
+                graph.adjacencyList[prevNodeId].push_back({accumulatedRef,highwayType});
             }
-            prev_node_id = accumulated_ref;
+            prevNodeId = accumulatedRef;
         }
     }
 }
@@ -98,6 +98,10 @@ bool readBlock(istream& file, Graph& graph, int8_t transportMethod) {
             return false; 
         }
 
+    if(blob_header.type() != "OSMData") {
+    return true; // Skip non-OSMData blobs but continue processing the file
+    }
+
     // Read the blob data based on the size specified in the header
     vector<char> blob_data_buffer(blob_header.datasize());
     OSMPBF::Blob blob;
@@ -125,9 +129,7 @@ bool readBlock(istream& file, Graph& graph, int8_t transportMethod) {
         return false;
     }
 
-    if(blob_header.type() != "OSMData") {
-        return true; // Skip non-OSMData blobs but continue processing the file
-    }
+
     OSMPBF::PrimitiveBlock primitive_block;
     if(!primitive_block.ParseFromArray(buffer_decompressed.data(), decompressed_size)) {
         cerr << "Failed to parse PrimitiveBlock!" << endl;
@@ -143,7 +145,6 @@ for(int g = 0; g < primitive_block.primitivegroup_size(); g++) {
         extractWays(group, graph, primitive_block, transportMethod);
     }
 }
-   //printBlobInfo(blob_header, blob, primitive_block);
     return true;
 }
 

@@ -1,23 +1,21 @@
 # Lisboa Pathfinder
 
-Exploring Lisbon through OpenStreetMap data, graph algorithms, and real city APIs.
+A low-level route planner for Lisbon, built from scratch in C++.
 
 ## Motivation
 
-Moving to Lisbon for a year as an Erasmus student. This started as an excuse to work with real geographic data at a low level — parsing binary formats, building graph structures, and implementing pathfinding from scratch. The direction of the project is still evolving, but the end goal is something closer to a dynamic router that factors in real-world conditions like live traffic, public transport, and city data.
+Moving to Lisbon for a year as an Erasmus student. This started as an excuse to work with real geographic data at a low level — parsing binary formats, building graph structures, and implementing pathfinding from scratch. The direction of the project is still evolving, but the end goal is something closer to a router that factors in real-world conditions like live traffic, public transport, and city data.
+
+> 📖 Check out [INTERNALS.md](INTERNALS.md) for a deep dive into how the PBF format works, how the graph is built, and how A* finds the path.
 
 ## Status
 
 🚧 Active development. The project is still finding its shape — priority right now is learning and building solid foundations.
 
 **Done:**
-- PBF binary parsing (BlobHeader, Blob, PrimitiveBlock)
-- zlib decompression of OSM data blocks
-- Dense node coordinate extraction with delta decoding
-- Way parsing with highway tag filtering
-- Graph construction (nodes + adjacency list)
-- A* pathfinding with Haversine heuristic
-- Transport method selection (car / walk) with highway type filtering
+- Full PBF binary parser from scratch (BlobHeader, Blob, zlib decompression, PrimitiveBlock)
+- Graph construction from OSM ways with highway tag filtering
+- A* pathfinding with Haversine heuristic and transport mode filtering (car / walk)
 - User input for start and goal coordinates
 
 **Planned:**
@@ -31,7 +29,8 @@ Moving to Lisbon for a year as an Erasmus student. This started as an excuse to 
   - Bus and parking info
   - Traffic sign data
   - Traffic light estimation (reverse engineering / heuristics)
-- INTERNALS.md — visual deep-dive into the PBF format, varint encoding, and delta compression
+- Interactive visual demo — Leaflet.js + GitHub Pages, click to pick points, path drawn on real map
+- WebAssembly with Emscripten to run the C++ pathfinding in the browser
 
 ## Dependencies
 
