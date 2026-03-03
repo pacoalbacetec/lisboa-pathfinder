@@ -4,8 +4,8 @@
 #include "transport.h"
 
 
-// haverstine formula to calculate the distance between two points on the earth's surface
-double haverstine(const LatLon& a, const LatLon& b){
+// harvesine formula to calculate the distance between two points on the earth's surface
+double harvesine(const LatLon& a, const LatLon& b){
 
     double latA = a.lat/1e9,
         latB = b.lat/1e9,
@@ -47,7 +47,7 @@ vector<int64_t> astar(int64_t start, int64_t goal, Graph& graph, int8_t transpor
 
     // intialize the first node 
     g_score[start] = 0;
-    double h = haverstine(graph.nodes[start].coords, graph.nodes[goal].coords);
+    double h = harvesine(graph.nodes[start].coords, graph.nodes[goal].coords);
     open_set.push(make_pair(h, start));
 
     const vector<string>& allowedTypes = (transportMethod == 1) ? CAR_TYPES : WALK_TYPES;
@@ -80,11 +80,11 @@ vector<int64_t> astar(int64_t start, int64_t goal, Graph& graph, int8_t transpor
                 if(find(allowedTypes.begin(), allowedTypes.end(), highwayType) == allowedTypes.end()) continue;
 
             //new g_score for neighbour is g_score of current node + distance to neighbour
-                double g_new = g_score[id] + haverstine(graph.nodes[id].coords, graph.nodes[neighbourId].coords);
+                double g_new = g_score[id] + harvesine(graph.nodes[id].coords, graph.nodes[neighbourId].coords);
                 if(g_score.find(neighbourId) == g_score.end() || g_new < g_score[neighbourId]) {
                     came_from[neighbourId] = id;
                     g_score[neighbourId] = g_new;
-                    double f = g_new + haverstine(graph.nodes[neighbourId].coords, graph.nodes[goal].coords);
+                    double f = g_new + harvesine(graph.nodes[neighbourId].coords, graph.nodes[goal].coords);
                     open_set.push(make_pair(f, neighbourId));
                 }
             }

@@ -6,7 +6,7 @@ A low-level route planner for Lisbon, built from scratch in C++.
 
 Moving to Lisbon for a year as an Erasmus student. This started as an excuse to work with real geographic data at a low level — parsing binary formats, building graph structures, and implementing pathfinding from scratch. The direction of the project is still evolving, but the end goal is something closer to a router that factors in real-world conditions like live traffic, public transport, and city data.
 
-> 📖 Check out [INTERNALS.md](INTERNALS.md) for a deep dive into how the PBF format works, how the graph is built, and how A* finds the path.
+> 📖 Check out [INTERNALS.md](/docs/INTERNALS.md) for a deep dive into how the PBF format works, how the graph is built, and how A* finds the path.
 
 ## Status
 

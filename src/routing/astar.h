@@ -5,7 +5,7 @@
 #include <unordered_set>
 #include <unordered_map>
 
-double haverstine(const LatLon& a, const LatLon& b);
+double harvesine(const LatLon& a, const LatLon& b);
 
 vector<int64_t> astar(int64_t start, int64_t goal, Graph& grap, int8_t transportMethod);
 

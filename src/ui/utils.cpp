@@ -49,7 +49,7 @@ int64_t findNearestNode(Coords target, Graph& graph, int8_t transportMethod) {
         }
         if(!hasValidNeighbour) continue;
         
-        double dist = haverstine(node.coords, targetNano);
+        double dist = harvesine(node.coords, targetNano);
         if(dist < bestDist) {
             bestDist = dist;
             bestId = id;

@@ -13,7 +13,5 @@ void extractWays(const OSMPBF::PrimitiveGroup& group, Graph& graph,
 
 bool readBlock(istream& file, Graph& graph, int8_t transportMethod);
 
-void printBlobInfo(const OSMPBF::BlobHeader& blob_header, const OSMPBF::Blob& blob, const OSMPBF::PrimitiveBlock& primitive_block);
-
 LatLon calculateLatLon(const OSMPBF::PrimitiveBlock& primitive_block, const OSMPBF::DenseNodes& dense);
 #endif 

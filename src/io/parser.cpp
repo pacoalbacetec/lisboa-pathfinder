@@ -4,10 +4,10 @@
 LatLon calculateLatLon(const OSMPBF::PrimitiveBlock& primitive_block, const OSMPBF::DenseNodes& dense) {
 
     int64_t granularity = primitive_block.granularity();
-    int64_t lat_offset = primitive_block.lat_offset();
-    int64_t lon_offset = primitive_block.lon_offset();
-    int64_t lat = lat_offset + granularity * dense.lat(0);
-    int64_t lon = lon_offset + granularity * dense.lon(0);
+    int64_t latOffset = primitive_block.lat_offset();
+    int64_t lonOffset = primitive_block.lon_offset();
+    int64_t lat = latOffset + granularity * dense.lat(0);
+    int64_t lon = lonOffset + granularity * dense.lon(0);
     return {lat, lon};
 
 }
@@ -148,28 +148,3 @@ for(int g = 0; g < primitive_block.primitivegroup_size(); g++) {
     return true;
 }
 
-
-
-void printBlobInfo(const OSMPBF::BlobHeader& blob_header, const OSMPBF::Blob& blob, const OSMPBF::PrimitiveBlock& primitive_block) {
-    cout << "Blob type: " << blob_header.type() << endl;
-    cout << "Blob data size: " << blob_header.datasize() << endl;
-    cout << "Blob raw size: " << blob.raw_size() << endl;
-    cout << "Primitive groups: " << primitive_block.primitivegroup_size() << endl;
-
-    if(blob_header.type() != "OSMData") return;
-
-    const auto& group = primitive_block.primitivegroup(0);
-    cout << "Nodes: " << group.nodes_size() << endl;
-    cout << "Dense nodes: " << group.has_dense() << endl;
-    cout << "Ways: " << group.ways_size() << endl;
-    cout << "Relations: " << group.relations_size() << endl;
-    const auto& dense = group.dense();
-    cout << "Dense node count: " << dense.id_size() << endl;
-
-// Calculate the latitude and longitude of the first node in the dense nodes
-
-    LatLon first_node = calculateLatLon(primitive_block, dense);
-    cout << "First node lat: " << first_node.lat / 1e9 << endl;
-    cout << "First node lon: " << first_node.lon / 1e9 << endl;
-
-}
