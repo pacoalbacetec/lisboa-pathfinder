@@ -1,2 +1,4 @@
 src/proto/*.pb.cc linguist-generated=true
 src/proto/*.pb.h linguist-generated=true
+src/proto/*.pb.cc linguist-detectable=false
+src/proto/*.pb.h linguist-detectable=false
