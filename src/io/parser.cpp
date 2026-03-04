@@ -74,7 +74,7 @@ void extractWays(const OSMPBF::PrimitiveGroup& group, Graph& graph,
 
 // Reads a single block from the OSM PBF file, parses it, and extracts nodes into the graph
 bool readBlock(istream& file, Graph& graph, int8_t transportMethod) {
-
+    
     // Read the first 4 bytes to get the header size
     char buffer[4];
     if(!file.read(buffer, 4))  {
@@ -99,7 +99,10 @@ bool readBlock(istream& file, Graph& graph, int8_t transportMethod) {
         }
 
     if(blob_header.type() != "OSMData") {
-    return true; // Skip non-OSMData blobs but continue processing the file
+    // read and discard the blob bytes
+        vector<char> skip(blob_header.datasize());
+        file.read(skip.data(), blob_header.datasize());
+        return true;
     }
 
     // Read the blob data based on the size specified in the header
@@ -136,14 +139,14 @@ bool readBlock(istream& file, Graph& graph, int8_t transportMethod) {
         return false;
     }
 
-for(int g = 0; g < primitive_block.primitivegroup_size(); g++) {
-    const auto& group = primitive_block.primitivegroup(g);
-    if(group.has_dense()) {
-        extractNodes(primitive_block, group.dense(), graph);
-    }
-    if(group.ways_size() > 0){
-        extractWays(group, graph, primitive_block, transportMethod);
-    }
+    for(int g = 0; g < primitive_block.primitivegroup_size(); g++) {
+        const auto& group = primitive_block.primitivegroup(g);
+        if(group.has_dense()) {
+            extractNodes(primitive_block, group.dense(), graph);
+        }
+        if(group.ways_size() > 0){
+            extractWays(group, graph, primitive_block, transportMethod);
+        }
 }
     return true;
 }

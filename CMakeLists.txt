@@ -9,6 +9,8 @@ find_package(ZLIB REQUIRED)
 add_executable(lisboa 
     src/proto/fileformat.pb.cc
     src/proto/osmformat.pb.cc
+    src/proto/graph_cache.pb.cc 
+    src/io/cache.cpp
     src/routing/astar.cpp
     src/io/parser.cpp
     src/ui/utils.cpp

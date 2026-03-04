@@ -11,7 +11,6 @@ struct LatLon {
 struct Node{
     int64_t id;
     LatLon coords; 
-    string name;
 };
 
 struct Coords {

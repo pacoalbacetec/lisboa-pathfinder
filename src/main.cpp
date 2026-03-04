@@ -4,12 +4,11 @@
 #include "astar.h"
 #include "transport.h"
 #include "io/parser.h"
+#include "cache.h"
 #include <algorithm>
 using namespace std;
 
-
 int main() {
-
     int8_t transportMethod = 0;
     string chosen;
     while(true){
@@ -26,13 +25,15 @@ int main() {
             cout << "Invalid input" << endl;
         }
     }
+    Graph graph;
+
     // Load graph from PBF file
     ifstream file("lisbon.osm.pbf", ios::binary);
-        if(!file.is_open()) {
-            cerr << "Error opening file!" << endl;
-            return 1;
-        }
-    Graph graph;
+    if(!file.is_open()) {
+        cerr << "Error opening file!" << endl;
+        return 1;
+    }
+
     int blockCount = 0;
     while(file.good()) {
         if(!readBlock(file, graph, transportMethod)) break;
@@ -41,7 +42,10 @@ int main() {
                 cout << "Processed " << blockCount << " blocks, nodes: " << graph.nodes.size() << endl;
         }
     }
+
     file.close();
+
+
     cout << "Total nodes: " << graph.nodes.size() << endl;
     cout << "Total nodes in adjacency list: " << graph.adjacencyList.size() << endl;
 
@@ -54,11 +58,6 @@ int main() {
     int64_t start = findNearestNode(startCoords, graph, transportMethod); // Praça do Comércio
     int64_t goal = findNearestNode(goalCoords, graph, transportMethod); // Rossio
 
-    /*  Debug: print neighbours of start node to check if are valid for the transport method
-    for(auto& [neighbourId, highwayType] : graph.adjacencyList[start]) {
-        cout << "neighbour: " << neighbourId << " type: " << highwayType << endl;
-    }
-    */
     // Run A* pathfinding
     vector<int64_t> path = astar(start, goal, graph,transportMethod);
     cout << "Path length: " << path.size() << " nodes" << endl;
