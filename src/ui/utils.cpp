@@ -3,25 +3,29 @@
 #include "transport.h"
 #include <algorithm>
 #include "astar.h"
+#include "nominatin.h"
 using namespace std;
 
 
-Coords askUserForCoordinates(const int8_t flag) {
-    double startCoordsLat, startCoordsLon, goalCoordsLat, goalCoordsLon;
+Coords askUserForCoordinates(int8_t flag) {
     switch(flag){
         case 1:{
-            cout << "Please introduce the coordinates of the start point: "<< "lat" << endl;
-            cin >> startCoordsLat;
-            cout << "Please introduce the coordinates of the start point: "<< "lon" << endl;
-            cin >> startCoordsLon;
-            return {startCoordsLat, startCoordsLon};
-        } case 2:
-            cout << "Please introduce the coordinates of the goal point: "<< "lat" << endl;
-            cin >> goalCoordsLat;
-            cout << "Please introduce the coordinates of the goal point: "<< "lon" << endl;
-            cin >> goalCoordsLon;
-            return {goalCoordsLat, goalCoordsLon};
-        }
+            string startName;
+            cout << "Where are you starting from? " << endl;
+            cin.ignore();
+            getline(cin, startName);
+            Coords startCoords = forwardGeocode(startName);
+            return {startCoords.lat, startCoords.lon};
+        } case 2: {
+            string goalName;
+            cout << "Where do you want to go? " << endl;
+            
+            getline(cin, goalName);
+            Coords goalCoords = forwardGeocode(goalName);
+            return {goalCoords.lat, goalCoords.lon};
+        } default: break;
+    }
+        
     return {0,0};
 }
 

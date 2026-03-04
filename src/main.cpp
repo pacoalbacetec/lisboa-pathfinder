@@ -4,6 +4,7 @@
 #include "astar.h"
 #include "transport.h"
 #include "io/parser.h"
+#include "io/nominatin.h"
 #include <algorithm>
 using namespace std;
 
@@ -11,8 +12,8 @@ int main() {
     int8_t transportMethod = 0;
     string chosen;
     while(true){
-        cout << "Choose a transport method (Car, Bike, Walk): " << endl;
-        cin  >> chosen;
+
+        cout << "How are you getting around Lisbon? (car / bike / walk): ";        cin  >> chosen;
         transform(chosen.begin(), chosen.end(), chosen.begin(), ::tolower);
         if(chosen == "car" || chosen == "bike"){
             transportMethod = 1;
@@ -24,6 +25,8 @@ int main() {
             cout << "Invalid input" << endl;
         }
     }
+    
+
     Graph graph;
 
     // Load graph from PBF file
@@ -32,34 +35,73 @@ int main() {
         cerr << "Error opening file!" << endl;
         return 1;
     }
-
+    
     int blockCount = 0;
+    cout << "Mapping every street in Lisbon. This may take a moment..." << endl;
     while(file.good()) {
-        if(!readBlock(file, graph, transportMethod)) break;
-            blockCount++;
-            if(blockCount % 100 == 0) {
-                cout << "Processed " << blockCount << " blocks, nodes: " << graph.nodes.size() << endl;
-        }
+        if(!readBlock(file, graph, transportMethod)) break;        
     }
 
     file.close();
 
+    cout << "Lisbon loaded --> " << graph.nodes.size() << " locations, " 
+    << graph.adjacencyList.size() << " road segments mapped." << endl;
 
-    cout << "Total nodes: " << graph.nodes.size() << endl;
-    cout << "Total nodes in adjacency list: " << graph.adjacencyList.size() << endl;
+    // Find nearest nodes to two points in Lisbon    
+    int answer;
+    cout << "Search by [1] name  [0] coordinates: ";    
+    cin >> answer;
+    if(answer){
+        Coords startCoords = askUserForCoordinates(1);
+        cout << "From: " << startCoords.lat << ", " << startCoords.lon << endl;
+        Coords goalCoords = askUserForCoordinates(2);
+        cout << "To:   " << goalCoords.lat << ", " << goalCoords.lon << endl;
 
-    // Find nearest nodes to two points in Lisbon
-    Coords startCoords = askUserForCoordinates(1);
-    cout << "Start: " << startCoords.lat << ", " << startCoords.lon << endl;
-    Coords goalCoords = askUserForCoordinates(2);
-    cout << "Goal: " << goalCoords.lat << ", " << goalCoords.lon << endl;
+        int64_t start = findNearestNode(startCoords, graph, transportMethod); // Praça do Comércio
+        int64_t goal = findNearestNode(goalCoords, graph, transportMethod); // Rossio
 
-    int64_t start = findNearestNode(startCoords, graph, transportMethod); // Praça do Comércio
-    int64_t goal = findNearestNode(goalCoords, graph, transportMethod); // Rossio
+        vector<int64_t> path = astar(start, goal, graph,transportMethod);
+        cout << "Route found -->" << path.size() << " nodes across Lisbon." << endl;
+
+    } else if(!answer) {
+        double startLat,startLon, goalLat,goalLon;
+        for(int i = 0; i < 4; i++){
+            switch(i){
+                case 0: {
+                    cout << "Insert start Lat" << endl;
+                    cin >> startLat;
+                    break;
+                } case 1: {
+                    cout << "Insert start Lon" << endl;
+                    cin >> startLon;
+                    break;
+                } case 2: {
+                    cout << "Insert goal Lat" << endl;
+                    cin >> goalLat;
+                    break;
+                } case 3: {
+                    cout << "Insert goal Lon" << endl;
+                    cin >> goalLon;
+                    break;
+                } default: break;
+            }
+        }
+        Coords startDest = {startLat,startLon}; 
+        Coords goalDest = {goalLat,goalLon}; 
+        string startName = reverseGeocode(startDest);
+        string goalName = reverseGeocode(goalDest);
+        cout << "Your coords are; start: " << startName<< "goal: " << goalName << endl;
+        int64_t start = findNearestNode(startDest,graph,transportMethod);
+        int64_t goal = findNearestNode(goalDest,graph,transportMethod);
+        vector<int64_t> path = astar(start, goal, graph, transportMethod);
+        cout << "Path length: " << path.size() << " nodes" << endl;
+
+    } else {
+        cerr << "Error choosing inserting coords method file!" << endl;
+    }
+    
 
     // Run A* pathfinding
-    vector<int64_t> path = astar(start, goal, graph,transportMethod);
-    cout << "Path length: " << path.size() << " nodes" << endl;
-
+    
     return 0;
 } 

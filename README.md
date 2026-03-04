@@ -35,26 +35,37 @@ Moving to Lisbon for a year as an Erasmus student. This started as an excuse to 
 ## Dependencies
 
 - [MSYS2](https://www.msys2.org/) — package manager for Windows
+- GCC (g++)
 - CMake
 - Protobuf
 - zlib
+- libcurl (for Nominatim API integration)
 
 Install dependencies via MSYS2:
 ```bash
-pacman -S mingw-w64-ucrt-x86_64-protobuf mingw-w64-ucrt-x86_64-zlib mingw-w64-ucrt-x86_64-cmake
-```
+pacman -S mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-protobuf mingw-w64-ucrt-x86_64-zlib mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-curl
 
+```
+Install dependencies via apt (Linux):
+```bash
+sudo apt install cmake libprotobuf-dev protobuf-compiler zlib1g-dev g++ libcurl4-openssl-dev
+```
 ## Data
 
 Download the Lisbon OSM dataset from [openstreetmap.fr](http://download.openstreetmap.fr/extracts/europe/portugal/lisbon.osm.pbf) and place `lisbon.osm.pbf` in the project root.
 
 ## Building
 
+Windows:
 ```bash
 cmake -B build -DCMAKE_PREFIX_PATH="C:/msys64/ucrt64"
 cmake --build build
 ```
-
+Linux:
+```bash
+cmake -B build
+cmake --build build
+```
 ## Running
 
 ```bash
