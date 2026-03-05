@@ -7,6 +7,22 @@
 using namespace std;
 
 
+bool checkBoundingBox(const Coords& coords){
+
+    const double LAT_MIN = 38.65, LAT_MAX = 38.80;
+    const double LON_MIN = -9.25, LON_MAX = -9.05;
+
+    if(coords.lat < LAT_MIN || coords.lat > LAT_MAX || coords.lon < LON_MIN || coords.lon > LON_MAX) {
+        cerr << "Coordinates outside Lisbon!" << endl;
+        return false;
+    } else {
+        return true;
+    }
+
+}
+
+
+
 Coords askUserForCoordinates(int8_t flag) {
     switch(flag){
         case 1:{
@@ -15,13 +31,14 @@ Coords askUserForCoordinates(int8_t flag) {
             cin.ignore();
             getline(cin, startName);
             Coords startCoords = forwardGeocode(startName);
+            if(!checkBoundingBox(startCoords)) return {0,0};            
             return {startCoords.lat, startCoords.lon};
         } case 2: {
             string goalName;
-            cout << "Where do you want to go? " << endl;
-            
+            cout << "Where do you want to go? " << endl;            
             getline(cin, goalName);
             Coords goalCoords = forwardGeocode(goalName);
+            if(!checkBoundingBox(goalCoords)) return {0,0};            
             return {goalCoords.lat, goalCoords.lon};
         } default: break;
     }

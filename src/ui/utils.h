@@ -4,6 +4,8 @@
 #include <cmath>
 #include "graph.h"
 
+bool checkBoundingBox(const Coords& coords);
+
 Coords askUserForCoordinates(const int8_t flag);
 
 

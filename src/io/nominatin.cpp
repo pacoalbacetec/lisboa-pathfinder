@@ -69,14 +69,24 @@ string reverseGeocode(const Coords& coords){
 
     string url = "https://nominatim.openstreetmap.org/reverse?lat=" + 
     to_string(coords.lat) + "&lon=" +to_string(coords.lon)+  
-    "&format=jsonv2&addressdetails=0&zoom=18";
+    "&format=jsonv2&addressdetails=0&zoom=16";
     
     string response = httpGet(url);
-    string keyName = "\"dislpay_name\":";
+    string keyName = "\"name\":";
     size_t nameKey = response.find(keyName);
     size_t postFirstQuoteName = response.find("\"",nameKey + keyName.length());
     size_t postSecondQuoteName = response.find("\"", postFirstQuoteName+1);
     string name = response.substr(postFirstQuoteName+1, postSecondQuoteName - postFirstQuoteName);
 
+    if(name.empty()){
+    
+        string keyName = "\"display_name\":";
+        size_t nameKey = response.find(keyName);
+        size_t postFirstQuoteName = response.find("\"",nameKey + keyName.length());
+        size_t postSecondQuoteName = response.find("\"", postFirstQuoteName+1);
+        name = response.substr(postFirstQuoteName+1, postSecondQuoteName - postFirstQuoteName - 1);
+        return name;
+
+    } else 
     return name;
 }

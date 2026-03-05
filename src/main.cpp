@@ -61,7 +61,7 @@ int main() {
         int64_t goal = findNearestNode(goalCoords, graph, transportMethod); // Rossio
 
         vector<int64_t> path = astar(start, goal, graph,transportMethod);
-        cout << "Route found -->" << path.size() << " nodes across Lisbon." << endl;
+        cout << "Route found --> " << path.size() << " nodes across Lisbon." << endl;
 
     } else if(!answer) {
         double startLat,startLon, goalLat,goalLon;
@@ -86,16 +86,18 @@ int main() {
                 } default: break;
             }
         }
+
         Coords startDest = {startLat,startLon}; 
         Coords goalDest = {goalLat,goalLon}; 
+        if(!checkBoundingBox(startDest) || !checkBoundingBox(goalDest)) return 1;
+
         string startName = reverseGeocode(startDest);
         string goalName = reverseGeocode(goalDest);
-        cout << "Your coords are; start: " << startName<< "goal: " << goalName << endl;
+        cout << "From: "<< startName<< endl <<"To: " << goalName << endl;
         int64_t start = findNearestNode(startDest,graph,transportMethod);
         int64_t goal = findNearestNode(goalDest,graph,transportMethod);
         vector<int64_t> path = astar(start, goal, graph, transportMethod);
-        cout << "Path length: " << path.size() << " nodes" << endl;
-
+        cout << "Route found --> " << path.size() << " nodes across Lisbon." << endl;
     } else {
         cerr << "Error choosing inserting coords method file!" << endl;
     }
