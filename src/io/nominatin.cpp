@@ -6,6 +6,8 @@
 #include <string>
 #include "utils.h"
 #include "graph.h"
+#include <thread>
+#include <chrono>
 
 static size_t writeCallBack(char * ptr, size_t size, size_t nmemb, void* userdata){
     string * response = (string*)userdata;
@@ -29,7 +31,7 @@ string httpGet(const string& url){
         curl_easy_perform(curl);
         curl_easy_cleanup(curl);
     }
-
+    this_thread::sleep_for(chrono::seconds(1));
     return response;
 
 }

@@ -6,6 +6,34 @@
 #include "nominatin.h"
 using namespace std;
 
+void printRoute(const vector<int64_t>& path, const Graph& graph){
+    vector<string> streets;
+    for(int i = 0; i < path.size()-1; i++){
+
+        int64_t current = path[i];
+        int64_t next = path[i+1];
+
+        //search the edge that connects curent with next
+        for(auto& edge : graph.adjacencyList.at(current)){
+            if(edge.node == next) {
+                if(streets.empty() || streets.back() != edge.wayName) {
+                    streets.push_back(edge.wayName);
+                }
+                break;
+            }
+        }
+    }
+
+    cout << "Route: " << endl;
+    for(auto& street : streets) {
+        cout << "  " << street << endl;
+    }
+
+}
+
+
+
+
 
 bool checkBoundingBox(const Coords& coords){
 
@@ -62,8 +90,8 @@ int64_t findNearestNode(Coords target, Graph& graph, int8_t transportMethod) {
         // check if node has a valid neighbour for the transport method
         bool hasValidNeighbour = false;
         const vector<string>& allowedTypes = (transportMethod == 1) ? CAR_TYPES : WALK_TYPES;
-        for(auto& [nId, type] : graph.adjacencyList[id]) {
-            if(find(allowedTypes.begin(), allowedTypes.end(), type) != allowedTypes.end()) {
+        for(auto& [nodeId, highwayType, wayName] : graph.adjacencyList[id]) {
+            if(find(allowedTypes.begin(), allowedTypes.end(), highwayType) != allowedTypes.end()) {
             hasValidNeighbour = true;
             break;
             }

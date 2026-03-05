@@ -18,4 +18,10 @@ struct Coords {
     double lon;
 };
 
+struct Edge {
+    int64_t node;
+    string highwayType;
+    string wayName;
+} ;
+
 #endif 

@@ -62,7 +62,12 @@ int main() {
 
         vector<int64_t> path = astar(start, goal, graph,transportMethod);
         cout << "Route found --> " << path.size() << " nodes across Lisbon." << endl;
-
+        bool route;
+        cout << "Would you like to see the streets of your route? [1] yes  [0] no: ";
+        cin >> route;
+        if(route){
+        printRoute(path, graph);
+    } 
     } else if(!answer) {
         double startLat,startLon, goalLat,goalLon;
         for(int i = 0; i < 4; i++){
@@ -86,24 +91,30 @@ int main() {
                 } default: break;
             }
         }
-
+        
         Coords startDest = {startLat,startLon}; 
         Coords goalDest = {goalLat,goalLon}; 
         if(!checkBoundingBox(startDest) || !checkBoundingBox(goalDest)) return 1;
 
         string startName = reverseGeocode(startDest);
         string goalName = reverseGeocode(goalDest);
+
         cout << "From: "<< startName<< endl <<"To: " << goalName << endl;
         int64_t start = findNearestNode(startDest,graph,transportMethod);
         int64_t goal = findNearestNode(goalDest,graph,transportMethod);
+
         vector<int64_t> path = astar(start, goal, graph, transportMethod);
         cout << "Route found --> " << path.size() << " nodes across Lisbon." << endl;
+        bool route;
+    cout << "Would you like to see the streets of your route? [1] yes  [0] no: ";
+    cin >> route;
+    if(route){
+        printRoute(path, graph);
+    } 
     } else {
         cerr << "Error choosing inserting coords method file!" << endl;
     }
     
-
-    // Run A* pathfinding
     
     return 0;
 } 

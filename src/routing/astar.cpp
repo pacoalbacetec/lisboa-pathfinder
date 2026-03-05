@@ -73,7 +73,7 @@ vector<int64_t> astar(int64_t start, int64_t goal, Graph& graph, int8_t transpor
         //mark current node as evaluated
             closed_set.insert({id});
         //evaluate neighbours
-            for(auto& [neighbourId, highwayType] : graph.adjacencyList[id]){
+            for(auto& [neighbourId, highwayType, wayName] : graph.adjacencyList[id]){
                 
                 if(closed_set.count(neighbourId)) continue;
                 if(graph.nodes[neighbourId].coords.lat == 0 && graph.nodes[neighbourId].coords.lon == 0) continue;

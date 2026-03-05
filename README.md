@@ -16,11 +16,9 @@ Moving to Lisbon for a year as an Erasmus student. This started as an excuse to 
 - Full PBF binary parser from scratch (BlobHeader, Blob, zlib decompression, PrimitiveBlock)
 - Graph construction from OSM ways with highway tag filtering
 - A* pathfinding with Haversine heuristic and transport mode filtering (car / walk)
-- User input for start and goal coordinates
+- User input for start and goal — by place name (Nominatim API) or coordinates
 
 **Planned:**
-- Graph cache (serialize/deserialize to avoid reloading PBF every run)
-- Nominatim API integration — search by place name instead of coordinates
 - Trie for place name autocomplete
 - k-d tree for efficient nearest node lookup
 - Multimodal routing (walking + driving combined)

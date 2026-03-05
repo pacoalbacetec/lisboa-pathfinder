@@ -43,6 +43,7 @@ void extractWays(const OSMPBF::PrimitiveGroup& group, Graph& graph,
     for(int i = 0; i < group.ways_size(); i++) {
         const auto& way = group.ways(i);
         string highwayType;
+        string wayName;
         // Check if this way has a "highway" tag
         bool isHighway = false;
         for(int k = 0; k < way.keys_size(); k++) {
@@ -51,7 +52,9 @@ void extractWays(const OSMPBF::PrimitiveGroup& group, Graph& graph,
                 isHighway = true;
                 // store type of highway: primary, footway, residential...
                 highwayType = stringTable.s(way.vals(k));
-                break;
+            }
+            if(key == "name"){
+                wayName = stringTable.s(way.vals(k));
             }
         }        
         if(!isHighway) continue;  // skip non-road ways
@@ -63,8 +66,8 @@ void extractWays(const OSMPBF::PrimitiveGroup& group, Graph& graph,
             accumulatedRef += way.refs(j);
             
             if(prevNodeId != -1) {
-                graph.adjacencyList[accumulatedRef].push_back({prevNodeId,highwayType});
-                graph.adjacencyList[prevNodeId].push_back({accumulatedRef,highwayType});
+                graph.adjacencyList[accumulatedRef].push_back({prevNodeId, highwayType, wayName});
+                graph.adjacencyList[prevNodeId].push_back({accumulatedRef, highwayType, wayName});
             }
             prevNodeId = accumulatedRef;
         }
