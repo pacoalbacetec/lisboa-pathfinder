@@ -24,4 +24,13 @@ struct Edge {
     string wayName;
 } ;
 
+struct kdNode{
+
+    int64_t id;
+    LatLon coords;
+    kdNode * left;
+    kdNode * right;
+
+};
+
 #endif 
