@@ -11,6 +11,7 @@ find_package(CURL REQUIRED)
 add_executable(lisboa 
     src/proto/fileformat.pb.cc
     src/proto/osmformat.pb.cc
+    src/core/kdTree.cpp
     src/io/nominatin.cpp
     src/routing/astar.cpp
     src/io/parser.cpp

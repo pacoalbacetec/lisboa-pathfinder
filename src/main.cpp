@@ -6,6 +6,7 @@
 #include "io/parser.h"
 #include "io/nominatin.h"
 #include <algorithm>
+#include "kdTree.h"
 using namespace std;
 
 int main() {
@@ -36,16 +37,17 @@ int main() {
         return 1;
     }
     
+    
     int blockCount = 0;
     cout << "Mapping every street in Lisbon. This may take a moment..." << endl;
     while(file.good()) {
         if(!readBlock(file, graph, transportMethod)) break;        
     }
-
     file.close();
-
     cout << "Lisbon loaded --> " << graph.nodes.size() << " locations, " 
     << graph.adjacencyList.size() << " road segments mapped." << endl;
+    KdTree kdTree;
+    buildKdTree(kdTree,graph,transportMethod);
 
     // Find nearest nodes to two points in Lisbon    
     int answer;
@@ -57,8 +59,9 @@ int main() {
         Coords goalCoords = askUserForCoordinates(2);
         cout << "To:   " << goalCoords.lat << ", " << goalCoords.lon << endl;
 
-        int64_t start = findNearestNode(startCoords, graph, transportMethod); // Praça do Comércio
-        int64_t goal = findNearestNode(goalCoords, graph, transportMethod); // Rossio
+        int64_t start = findNearest(kdTree, startCoords ); 
+        int64_t goal = findNearest(kdTree,goalCoords ); 
+        cout << "start id: " << start << " goal id: " << goal << endl;
 
         vector<int64_t> path = astar(start, goal, graph,transportMethod);
         cout << "Route found --> " << path.size() << " nodes across Lisbon." << endl;
@@ -100,8 +103,8 @@ int main() {
         string goalName = reverseGeocode(goalDest);
 
         cout << "From: "<< startName<< endl <<"To: " << goalName << endl;
-        int64_t start = findNearestNode(startDest,graph,transportMethod);
-        int64_t goal = findNearestNode(goalDest,graph,transportMethod);
+        int64_t start = findNearest(kdTree,startDest);
+        int64_t goal = findNearest(kdTree,goalDest);
 
         vector<int64_t> path = astar(start, goal, graph, transportMethod);
         cout << "Route found --> " << path.size() << " nodes across Lisbon." << endl;

@@ -31,10 +31,6 @@ void printRoute(const vector<int64_t>& path, const Graph& graph){
 
 }
 
-
-
-
-
 bool checkBoundingBox(const Coords& coords){
 
     const double LAT_MIN = 38.65, LAT_MAX = 38.80;
@@ -46,10 +42,7 @@ bool checkBoundingBox(const Coords& coords){
     } else {
         return true;
     }
-
 }
-
-
 
 Coords askUserForCoordinates(int8_t flag) {
     switch(flag){
@@ -73,8 +66,6 @@ Coords askUserForCoordinates(int8_t flag) {
         
     return {0,0};
 }
-
-
 
 int64_t findNearestNode(Coords target, Graph& graph, int8_t transportMethod) {
     int64_t bestId = -1;
