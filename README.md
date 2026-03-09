@@ -17,10 +17,10 @@ Moving to Lisbon for a year as an Erasmus student. This started as an excuse to 
 - Graph construction from OSM ways with highway tag filtering
 - A* pathfinding with Haversine heuristic and transport mode filtering (car / walk)
 - User input for start and goal — by place name (Nominatim API) or coordinates
+- k-d tree for efficient nearest node lookup
 
 **Planned:**
 - Trie for place name autocomplete
-- k-d tree for efficient nearest node lookup
 - Multimodal routing (walking + driving combined)
 - Lisboa open data API integration:
   - Live traffic data
