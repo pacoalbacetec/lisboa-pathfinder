@@ -13,22 +13,22 @@ Moving to Lisbon for a year as an Erasmus student. This started as an excuse to 
 🚧 Active development. The project is still finding its shape — priority right now is learning and building solid foundations.
 
 **Done:**
-- Full PBF binary parser from scratch (BlobHeader, Blob, zlib decompression, PrimitiveBlock)
-- Graph construction from OSM ways with highway tag filtering
-- A* pathfinding with Haversine heuristic and transport mode filtering (car / walk)
-- User input for start and goal — by place name (Nominatim API) or coordinates
-- k-d tree for efficient nearest node lookup
+- Full PBF binary parser from scratch — BlobHeader, Blob, zlib decompression, delta decoding
+- Graph construction from OSM ways with transport mode filtering (car / bike / walk)
+- A* pathfinding with Haversine heuristic and k-d tree for O(log n) nearest node lookup
+- Nominatim API integration — forward and reverse geocoding, search by place name or coordinates
+- Street names in route output, extracted directly from OSM way tags
+
 
 **Planned:**
-- Trie for place name autocomplete
-- Multimodal routing (walking + driving combined)
-- Lisboa open data API integration:
-  - Live traffic data
-  - Bus and parking info
-  - Traffic sign data
-  - Traffic light estimation (reverse engineering / heuristics)
-- Interactive visual demo — Leaflet.js + GitHub Pages, click to pick points, path drawn on real map
-- WebAssembly with Emscripten to run the C++ pathfinding in the browser
+- Waypoints — intermediate stops by name or coordinates
+- Road weighting and turn restrictions — realistic routing using OSM data
+- Bidirectional A* and Contraction Hierarchies — performance optimizations
+- GPX export and Leaflet.js interactive demo — GitHub Pages, click to pick points
+- WebAssembly — run C++ pathfinding in the browser via Emscripten
+- Lisboa open data — Carris buses, parking availability, live traffic
+- Favourites and route history — save places and recent searches
+- Trie autocomplete for place name input
 
 ## Dependencies
 
